@@ -1,0 +1,339 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum Unit {
+  CARTON
+  PIECE
+}
+
+enum DiscountType {
+  AMOUNT
+  PERCENT
+}
+
+enum InvoiceStatus {
+  DRAFT
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  CANCELLED
+}
+
+enum MovementType {
+  OPENING
+  STOCK_IN
+  STOCK_OUT
+  SALE
+  SALE_RETURN
+  ADJUSTMENT
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  MOBILE_BANKING
+  CHEQUE
+  CARD
+  OTHER
+}
+
+model User {
+  id               String          @id @default(cuid())
+  name             String
+  email            String          @unique
+  passwordHash     String
+  role             Role            @default(STAFF)
+  active           Boolean         @default(true)
+  canOverridePrice Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  priceChanges     PriceHistory[]
+  stockMovements   StockMovement[]
+  invoices         Invoice[]       @relation("InvoiceCreatedBy")
+  cancelledInvoices Invoice[]      @relation("InvoiceCancelledBy")
+  payments         Payment[]       @relation("PaymentCreatedBy")
+  voidedPayments   Payment[]       @relation("PaymentVoidedBy")
+  purchases        Purchase[]
+  auditLogs        AuditLog[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  products    Product[]
+}
+
+model Product {
+  id               String          @id @default(cuid())
+  name             String
+  sku              String          @unique
+  categoryId       String?
+  brand            String
+  color            String
+  description      String?
+  active           Boolean         @default(true)
+  isArchived       Boolean         @default(false)
+  piecesPerCarton  Int             @default(1)
+  cartonPrice      Decimal         @db.Decimal(12, 2)
+  piecePrice       Decimal         @db.Decimal(12, 2)
+  costPrice        Decimal         @default(0) @db.Decimal(12, 4)
+  stockPieces      Int             @default(0)
+  lowStockPieces   Int             @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  category         Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  priceHistory     PriceHistory[]
+  stockMovements   StockMovement[]
+  invoiceItems     InvoiceItem[]
+  purchaseItems    PurchaseItem[]
+
+  @@index([sku])
+  @@index([categoryId])
+  @@index([brand])
+  @@index([active, isArchived])
+}
+
+model PriceHistory {
+  id              String   @id @default(cuid())
+  productId       String
+  oldCartonPrice  Decimal  @db.Decimal(12, 2)
+  newCartonPrice  Decimal  @db.Decimal(12, 2)
+  oldPiecePrice   Decimal  @db.Decimal(12, 2)
+  newPiecePrice   Decimal  @db.Decimal(12, 2)
+  note            String?
+  changedById     String
+  createdAt       DateTime @default(now())
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  changedBy       User     @relation(fields: [changedById], references: [id], onDelete: Restrict)
+
+  @@index([productId, createdAt])
+  @@index([createdAt])
+}
+
+model StockMovement {
+  id             String       @id @default(cuid())
+  productId      String
+  type           MovementType
+  quantity       Int
+  unit           Unit
+  quantityPieces Int
+  unitCost       Decimal?     @db.Decimal(12, 4)
+  referenceType  String?
+  referenceId    String?
+  note           String?
+  userId         String
+  createdAt      DateTime     @default(now())
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([productId, createdAt])
+  @@index([type, createdAt])
+  @@index([referenceId])
+  @@index([createdAt])
+}
+
+model Supplier {
+  id            String     @id @default(cuid())
+  name          String     @unique
+  contactPerson String?
+  phone         String?
+  email         String?
+  address       String?
+  notes         String?
+  active        Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  purchases     Purchase[]
+}
+
+model Purchase {
+  id              String         @id @default(cuid())
+  purchaseNumber  String         @unique
+  supplierId      String?
+  purchaseDate    DateTime       @default(now())
+  referenceNumber String?
+  note            String?
+  totalCost       Decimal        @default(0) @db.Decimal(12, 2)
+  createdById     String
+  createdAt       DateTime       @default(now())
+  supplier        Supplier?      @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  createdBy       User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  items           PurchaseItem[]
+
+  @@index([supplierId])
+  @@index([purchaseDate])
+}
+
+model PurchaseItem {
+  id             String   @id @default(cuid())
+  purchaseId     String
+  productId      String?
+  productName    String
+  quantity       Int
+  unit           Unit
+  quantityPieces Int
+  unitCost       Decimal  @db.Decimal(12, 4)
+  lineTotal      Decimal  @db.Decimal(12, 2)
+  purchase       Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([purchaseId])
+  @@index([productId])
+}
+
+model Customer {
+  id             String    @id @default(cuid())
+  name           String    @unique
+  contactPerson  String?
+  phone          String?
+  email          String?
+  address        String?
+  notes          String?
+  openingBalance Decimal   @default(0) @db.Decimal(12, 2)
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  invoices       Invoice[]
+  payments       Payment[]
+
+  @@index([name])
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique
+  customerId      String?
+  customerName    String
+  customerPhone   String?
+  customerEmail   String?
+  customerAddress String?
+  date            DateTime      @default(now())
+  dueDate         DateTime?
+  status          InvoiceStatus @default(UNPAID)
+  isQuick         Boolean       @default(false)
+  stockPosted     Boolean       @default(false)
+  subtotal        Decimal       @default(0) @db.Decimal(12, 2)
+  discountType    DiscountType  @default(AMOUNT)
+  discountValue   Decimal       @default(0) @db.Decimal(12, 2)
+  discountAmount  Decimal       @default(0) @db.Decimal(12, 2)
+  taxRate         Decimal       @default(0) @db.Decimal(12, 2)
+  taxAmount       Decimal       @default(0) @db.Decimal(12, 2)
+  shipping        Decimal       @default(0) @db.Decimal(12, 2)
+  total           Decimal       @default(0) @db.Decimal(12, 2)
+  paidAmount      Decimal       @default(0) @db.Decimal(12, 2)
+  dueAmount       Decimal       @default(0) @db.Decimal(12, 2)
+  notes           String?
+  terms           String?
+  createdById     String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  cancelledAt     DateTime?
+  cancelledById   String?
+  customer        Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdBy       User          @relation("InvoiceCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  cancelledBy     User?         @relation("InvoiceCancelledBy", fields: [cancelledById], references: [id], onDelete: SetNull)
+  items           InvoiceItem[]
+  payments        Payment[]
+
+  @@index([customerId])
+  @@index([date])
+  @@index([dueDate])
+  @@index([status])
+  @@index([customerName])
+}
+
+model InvoiceItem {
+  id               String   @id @default(cuid())
+  invoiceId        String
+  productId        String?
+  description      String
+  unit             Unit
+  quantity         Int
+  unitPrice        Decimal  @db.Decimal(12, 2)
+  piecesPerCarton  Int
+  quantityPieces   Int
+  lineTotal        Decimal  @db.Decimal(12, 2)
+  invoice          Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  product          Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([productId])
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  receiptNumber String        @unique
+  invoiceId     String
+  customerId    String?
+  amount        Decimal       @db.Decimal(12, 2)
+  date          DateTime      @default(now())
+  method        PaymentMethod @default(CASH)
+  reference     String?
+  note          String?
+  createdById   String
+  createdAt     DateTime      @default(now())
+  voidedAt      DateTime?
+  voidedById    String?
+  voidReason    String?
+  invoice       Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  customer      Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdBy     User          @relation("PaymentCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  voidedBy      User?         @relation("PaymentVoidedBy", fields: [voidedById], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([customerId])
+  @@index([date])
+  @@index([method])
+  @@index([voidedAt])
+}
+
+model Setting {
+  id                String   @id @default("singleton")
+  companyName       String   @default("TR Enterprise")
+  logoUrl           String?  @db.Text
+  address           String?
+  phone             String?
+  email             String?
+  currency          String   @default("BDT")
+  currencySymbol    String   @default("৳")
+  invoicePrefix     String   @default("INV-")
+  defaultTaxRate    Decimal  @default(0) @db.Decimal(5, 2)
+  invoiceFooterNote String?
+  allowNegativeStock Boolean @default(false)
+  updatedAt         DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model Sequence {
+  key       String @id
+  value     Int    @default(0)
+  updatedAt DateTime @updatedAt
+}
