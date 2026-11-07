@@ -15,10 +15,11 @@ export const metadata: Metadata = {
 };
 
 export default async function NewInvoicePage({
-  searchParams,
+  searchParams: searchParamsPromise,
 }: {
-  searchParams?: { mode?: string };
+  searchParams?: Promise<{ mode?: string }>;
 }) {
+  const searchParams = await searchParamsPromise;
   const user = await requirePageUser();
   const [products, customers, settings] = await Promise.all([
     prisma.product.findMany({

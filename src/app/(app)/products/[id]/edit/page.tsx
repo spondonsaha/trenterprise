@@ -12,7 +12,12 @@ export const metadata: Metadata = {
   title: "Edit product",
 };
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+export default async function EditProductPage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await paramsPromise;
   const user = await requirePageUser();
   if (!canOverridePrice(user)) redirect(`/products/${params.id}`);
 

@@ -40,7 +40,12 @@ export const metadata: Metadata = {
   title: "Product detail",
 };
 
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+export default async function ProductDetailPage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await paramsPromise;
   const user = await requirePageUser();
   const canManage = canOverridePrice(user);
   const isAdmin = user.role === "ADMIN";

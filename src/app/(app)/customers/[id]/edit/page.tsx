@@ -12,7 +12,12 @@ export const metadata: Metadata = {
   title: "Edit customer",
 };
 
-export default async function EditCustomerPage({ params }: { params: { id: string } }) {
+export default async function EditCustomerPage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await paramsPromise;
   const user = await requirePageUser();
   const customer = await prisma.customer.findUnique({ where: { id: params.id } });
   if (!customer) notFound();

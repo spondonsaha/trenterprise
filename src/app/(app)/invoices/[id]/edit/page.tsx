@@ -14,7 +14,12 @@ export const metadata: Metadata = {
   title: "Edit invoice",
 };
 
-export default async function EditInvoicePage({ params }: { params: { id: string } }) {
+export default async function EditInvoicePage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await paramsPromise;
   const user = await requirePageUser();
   const [invoice, products, customers] = await Promise.all([
     prisma.invoice.findUnique({

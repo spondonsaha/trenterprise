@@ -20,7 +20,7 @@ A complete, responsive ERP for **TR Enterprise**, a printer consumables business
 
 | Area | Choice |
 | --- | --- |
-| Framework | Next.js 14 (App Router, Server Actions) |
+| Framework | Next.js 15 (App Router, Server Actions) |
 | Language | TypeScript (strict) |
 | Database | Neon Postgres + Prisma 6 |
 | Auth | NextAuth (credentials, JWT sessions) + bcrypt |
@@ -33,7 +33,7 @@ A complete, responsive ERP for **TR Enterprise**, a printer consumables business
 
 ### 1. Requirements
 
-- Node.js 20+ (developed on Node 24)
+- Node.js 22+ (Vercel pins 22.x; check `.nvmrc`/`engines`)
 - A Neon Postgres database (or any Postgres 15+ instance)
 
 ### 2. Install

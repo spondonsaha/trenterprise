@@ -48,7 +48,12 @@ const METHOD_LABELS: Record<PaymentMethod, string> = {
   OTHER: "Other",
 };
 
-export default async function CustomerDetailPage({ params }: { params: { id: string } }) {
+export default async function CustomerDetailPage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await paramsPromise;
   const user = await requirePageUser();
   const customer = await prisma.customer.findUnique({
     where: { id: params.id },

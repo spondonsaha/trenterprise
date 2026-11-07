@@ -14,10 +14,11 @@ export const metadata: Metadata = {
 };
 
 export default async function StockOutPage({
-  searchParams,
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const searchParams = await searchParamsPromise;
   await requirePageUser();
   const requestedProductId = getStringParam(searchParams, "productId") ?? "";
 

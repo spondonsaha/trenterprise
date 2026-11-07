@@ -13,10 +13,11 @@ export const metadata: Metadata = {
 };
 
 export default async function AdjustStockPage({
-  searchParams,
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const searchParams = await searchParamsPromise;
   await requirePageUser();
   const requestedProductId = getStringParam(searchParams, "productId") ?? "";
 

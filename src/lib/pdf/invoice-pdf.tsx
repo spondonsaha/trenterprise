@@ -180,6 +180,7 @@ export function InvoicePdf({ data }: { data: InvoicePdfData }) {
       <Page size="A4" style={styles.page} wrap>
         <View style={styles.header}>
           <View style={styles.brandRow}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- React-PDF images are not DOM images */}
             {data.company.logoUrl ? <Image src={data.company.logoUrl} style={styles.logo} /> : null}
             <View>
               <Text style={styles.brandName}>{COMPANY_NAME}</Text>

@@ -24,10 +24,11 @@ export const metadata: Metadata = {
 };
 
 export default async function SuppliersPage({
-  searchParams,
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const searchParams = await searchParamsPromise;
   await requirePageAdmin();
   const q = (getStringParam(searchParams, "q") ?? "").trim();
 

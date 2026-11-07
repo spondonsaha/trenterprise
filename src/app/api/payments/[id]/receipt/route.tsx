@@ -11,7 +11,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  _request: Request,
+  { params: paramsPromise }: { params: Promise<{ id: string }> },
+) {
+  const params = await paramsPromise;
   const user = await getSessionUser();
   if (!user) return new Response("Unauthorized", { status: 401 });
 

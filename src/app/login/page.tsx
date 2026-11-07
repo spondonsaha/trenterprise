@@ -29,10 +29,11 @@ const FEATURES = [
 ];
 
 export default async function LoginPage({
-  searchParams,
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: { callbackUrl?: string };
+  searchParams: Promise<{ callbackUrl?: string }>;
 }) {
+  const searchParams = await searchParamsPromise;
   const user = await getSessionUser();
   if (user) redirect("/dashboard");
 

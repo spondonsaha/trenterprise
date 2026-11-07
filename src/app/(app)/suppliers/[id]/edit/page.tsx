@@ -12,7 +12,12 @@ export const metadata: Metadata = {
   title: "Edit supplier",
 };
 
-export default async function EditSupplierPage({ params }: { params: { id: string } }) {
+export default async function EditSupplierPage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const params = await paramsPromise;
   await requirePageAdmin();
   const supplier = await prisma.supplier.findUnique({ where: { id: params.id } });
   if (!supplier) notFound();
