@@ -67,7 +67,7 @@ export function InvoiceActions({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">
       {canFinalize ? (
         <ConfirmDialog
           title={`Finalize ${invoiceNumber}?`}

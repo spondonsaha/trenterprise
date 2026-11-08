@@ -48,7 +48,7 @@ export default async function InvoicePrintPage({
         <PrintButton />
       </div>
 
-      <div className="print-area mx-auto max-w-4xl rounded-xl border border-border bg-white p-8 shadow-sm print:rounded-none print:border-0 print:p-0 print:shadow-none">
+      <div className="print-area mx-auto max-w-4xl rounded-xl border border-border bg-white p-4 shadow-sm sm:p-8 print:rounded-none print:border-0 print:p-0 print:shadow-none">
         <div className="flex flex-col gap-6 border-b border-slate-200 pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex items-center gap-3">
@@ -117,7 +117,8 @@ export default async function InvoicePrintPage({
             </div>
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto print:overflow-visible">
+            <table className="w-full min-w-[540px] text-sm print:min-w-0">
             <thead>
               <tr className="border-y border-slate-200 bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-500">
                 <th className="py-2.5 pr-3 font-semibold">Description</th>
@@ -148,7 +149,8 @@ export default async function InvoicePrintPage({
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
 
         <div className="mt-6 flex justify-end">

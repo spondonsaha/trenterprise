@@ -104,8 +104,8 @@ export default async function InvoiceDetailPage({
         </div>
       ) : null}
 
-      <div className="grid gap-5 xl:grid-cols-3">
-        <div className="space-y-5 xl:col-span-2">
+      <div className="grid min-w-0 gap-5 xl:grid-cols-3">
+        <div className="min-w-0 space-y-5 xl:col-span-2">
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <div>
@@ -133,44 +133,77 @@ export default async function InvoiceDetailPage({
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[620px] text-sm">
-                    <thead>
-                      <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-slate-500">
-                        <th className="py-2 pr-3 font-medium">Item</th>
-                        <th className="py-2 pr-3 text-right font-medium">Qty</th>
-                        <th className="py-2 pr-3 text-right font-medium">Unit price</th>
-                        <th className="py-2 text-right font-medium">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {invoice.items.map((item, index) => (
-                        <tr key={item.id}>
-                          <td className="py-3 pr-3">
-                            <p className="font-medium text-slate-900">
+                <>
+                  <div className="space-y-3 md:hidden">
+                    {invoice.items.map((item, index) => (
+                      <div key={item.id} className="rounded-lg border border-border p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="break-words font-medium text-slate-900">
                               {item.description || item.product?.sku || `Line ${index + 1}`}
                             </p>
-                            <p className="text-xs text-slate-500">
+                            <p className="mt-0.5 text-xs text-slate-500">
                               {item.product?.sku ? `${item.product.sku} · ` : ""}
                               {item.quantity} {item.unit === "CARTON" ? "carton" : "piece"}
                               {item.quantity === 1 ? "" : "s"}
-                              {item.unit === "CARTON"
-                                ? ` · ${item.quantityPieces} pcs (${item.piecesPerCarton}/ctn)`
-                                : ` · ${item.quantityPieces} pcs`}
                             </p>
-                          </td>
-                          <td className="py-3 pr-3 text-right text-slate-700">{item.quantity}</td>
-                          <td className="py-3 pr-3 text-right text-slate-700">
-                            {formatMoney(item.unitPrice)}
-                          </td>
-                          <td className="py-3 text-right font-medium text-slate-900">
+                            {item.unit === "CARTON" ? (
+                              <p className="text-xs text-slate-500">
+                                {item.quantityPieces} pcs ({item.piecesPerCarton}/ctn)
+                              </p>
+                            ) : (
+                              <p className="text-xs text-slate-500">{item.quantityPieces} pcs</p>
+                            )}
+                          </div>
+                          <p className="shrink-0 text-sm font-semibold text-slate-900">
                             {formatMoney(item.lineTotal)}
-                          </td>
+                          </p>
+                        </div>
+                        <p className="mt-2 text-xs text-slate-500">
+                          {formatMoney(item.unitPrice)} each
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="hidden overflow-x-auto md:block">
+                    <table className="w-full min-w-[620px] text-sm">
+                      <thead>
+                        <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-slate-500">
+                          <th className="py-2 pr-3 font-medium">Item</th>
+                          <th className="py-2 pr-3 text-right font-medium">Qty</th>
+                          <th className="py-2 pr-3 text-right font-medium">Unit price</th>
+                          <th className="py-2 text-right font-medium">Total</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {invoice.items.map((item, index) => (
+                          <tr key={item.id}>
+                            <td className="py-3 pr-3">
+                              <p className="font-medium text-slate-900">
+                                {item.description || item.product?.sku || `Line ${index + 1}`}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {item.product?.sku ? `${item.product.sku} · ` : ""}
+                                {item.quantity} {item.unit === "CARTON" ? "carton" : "piece"}
+                                {item.quantity === 1 ? "" : "s"}
+                                {item.unit === "CARTON"
+                                  ? ` · ${item.quantityPieces} pcs (${item.piecesPerCarton}/ctn)`
+                                  : ` · ${item.quantityPieces} pcs`}
+                              </p>
+                            </td>
+                            <td className="py-3 pr-3 text-right text-slate-700">{item.quantity}</td>
+                            <td className="py-3 pr-3 text-right text-slate-700">
+                              {formatMoney(item.unitPrice)}
+                            </td>
+                            <td className="py-3 text-right font-medium text-slate-900">
+                              {formatMoney(item.lineTotal)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
 
               <div className="mt-4 ml-auto w-full max-w-xs space-y-2 border-t border-border pt-4 text-sm">
@@ -286,7 +319,7 @@ export default async function InvoiceDetailPage({
           ) : null}
         </div>
 
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <Card>
             <CardHeader>
               <CardTitle>Customer</CardTitle>
@@ -335,7 +368,9 @@ export default async function InvoiceDetailPage({
               <CardTitle>Outstanding</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-semibold text-slate-900">{formatMoney(dueAmount)}</p>
+              <p className="break-words text-2xl font-semibold text-slate-900 sm:text-3xl">
+                {formatMoney(dueAmount)}
+              </p>
               <p className="mt-1 text-xs text-slate-500">
                 {invoice.status === "PAID"
                   ? "This invoice is fully paid."
