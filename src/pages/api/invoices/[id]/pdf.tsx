@@ -5,7 +5,7 @@ import { withPdfErrorHandling } from "@/lib/pdf-api";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { InvoicePdf, type InvoicePdfData } from "@/lib/pdf/invoice-pdf";
-import { formatAmount } from "@/lib/money";
+import { D, formatAmount, round2 } from "@/lib/money";
 import { COMPANY_SLUG, INVOICE_STATUS_LABELS } from "@/lib/constants";
 import { formatDate, sanitizeFileName } from "@/lib/utils";
 
@@ -32,6 +32,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!invoice) return res.status(404).send("Invoice not found");
 
   const settings = await getSettings();
+  const outstanding = round2(D(invoice.total).sub(D(invoice.paidAmount)));
+  const dueAmount = outstanding.isNegative() ? D(0) : outstanding;
 
   const data: InvoicePdfData = {
     invoiceNumber: invoice.invoiceNumber,
@@ -72,12 +74,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     shipping: formatAmount(invoice.shipping),
     total: formatAmount(invoice.total),
     paidAmount: formatAmount(invoice.paidAmount),
-    dueAmount: formatAmount(invoice.dueAmount),
+    dueAmount: formatAmount(dueAmount),
     hasDiscount: Number(invoice.discountAmount) > 0,
     hasTax: Number(invoice.taxAmount) > 0,
     hasShipping: Number(invoice.shipping) > 0,
     hasPaid: Number(invoice.paidAmount) > 0,
-    hasDue: Number(invoice.dueAmount) > 0,
+    hasDue: dueAmount.gt(0),
     notes: invoice.notes,
     terms: invoice.terms,
   };
