@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  serverExternalPackages: ["@react-pdf/renderer"],
+  transpilePackages: ["@react-pdf/renderer"],
   async headers() {
     return [
       {

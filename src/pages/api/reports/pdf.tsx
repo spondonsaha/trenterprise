@@ -1,6 +1,7 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getApiSessionUser } from "@/lib/api-auth";
+import { withPdfErrorHandling } from "@/lib/pdf-api";
 import { generateReport, isReportType } from "@/lib/reports";
 import { getSettings } from "@/lib/settings";
 import { ReportPdf, type ReportPdfData } from "@/lib/pdf/report-pdf";
@@ -15,7 +16,7 @@ function queryValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).send("Method Not Allowed");
@@ -61,3 +62,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader("Cache-Control", "no-store");
   return res.status(200).send(Buffer.from(buffer));
 }
+
+export default withPdfErrorHandling(handler);

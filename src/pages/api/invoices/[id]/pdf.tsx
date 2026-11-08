@@ -1,6 +1,7 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getApiSessionUser } from "@/lib/api-auth";
+import { withPdfErrorHandling } from "@/lib/pdf-api";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { InvoicePdf, type InvoicePdfData } from "@/lib/pdf/invoice-pdf";
@@ -12,7 +13,7 @@ export const config = {
   api: { responseLimit: false },
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).send("Method Not Allowed");
@@ -84,3 +85,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader("Cache-Control", "no-store");
   return res.status(200).send(Buffer.from(buffer));
 }
+
+export default withPdfErrorHandling(handler);
