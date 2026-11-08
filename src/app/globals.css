@@ -6,26 +6,92 @@
 
 @layer base {
   :root {
+    color-scheme: light;
+
     --background: 210 40% 98%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
+
     --primary: 224 64% 33%;
+    --primary-hover: 224 76% 48%;
     --primary-foreground: 210 40% 98%;
+
     --secondary: 210 40% 96%;
     --secondary-foreground: 222 47% 11%;
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 175 84% 32%;
+    --muted-foreground: 215 20% 42%;
+
+    --accent: 175 84% 30%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
+
+    --success: 142 71% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 95% 34%;
+    --warning-foreground: 0 0% 100%;
+    --danger: 0 72% 45%;
+    --danger-foreground: 0 0% 100%;
+    --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
+
     --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --input: 214 32% 88%;
     --ring: 224 64% 33%;
-    --radius: 0.6rem;
+    --radius: 0.875rem;
+
+    --money-positive: 142 71% 30%;
+    --money-due: 32 95% 32%;
+    --money-overdue: 0 72% 42%;
+    --money-muted: 215 16% 47%;
+
+    --shadow-card: 0 1px 2px 0 hsl(222 47% 11% / 0.05), 0 1px 3px 0 hsl(222 47% 11% / 0.06);
+    --shadow-pop: 0 12px 32px -8px hsl(222 47% 11% / 0.18), 0 4px 12px -4px hsl(222 47% 11% / 0.1);
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+    --card: 217 33% 12%;
+    --card-foreground: 210 40% 96%;
+    --popover: 217 33% 12%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 217 91% 65%;
+    --primary-hover: 217 91% 72%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 70%;
+
+    --accent: 172 66% 50%;
+    --accent-foreground: 222 47% 11%;
+
+    --success: 142 69% 58%;
+    --success-foreground: 222 47% 11%;
+    --warning: 38 92% 60%;
+    --warning-foreground: 222 47% 11%;
+    --danger: 0 84% 68%;
+    --danger-foreground: 222 47% 11%;
+    --destructive: 0 84% 68%;
+    --destructive-foreground: 222 47% 11%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 24%;
+    --ring: 217 91% 65%;
+
+    --money-positive: 142 69% 60%;
+    --money-due: 38 92% 62%;
+    --money-overdue: 0 84% 68%;
+    --money-muted: 215 20% 65%;
+
+    --shadow-card: 0 1px 2px 0 hsl(0 0% 0% / 0.4);
+    --shadow-pop: 0 12px 32px -8px hsl(0 0% 0% / 0.55), 0 4px 12px -4px hsl(0 0% 0% / 0.35);
   }
 
   * {
@@ -42,7 +108,8 @@
   }
 
   ::selection {
-    @apply bg-brand-100 text-brand-900;
+    background-color: hsl(var(--primary) / 0.18);
+    color: hsl(var(--foreground));
   }
 }
 
@@ -51,9 +118,14 @@
     text-wrap: balance;
   }
 
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -62,7 +134,7 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
+    background-color: hsl(var(--muted-foreground) / 0.4);
     border-radius: 9999px;
   }
 }
@@ -70,16 +142,31 @@
 .skeleton-shimmer {
   position: relative;
   overflow: hidden;
-  background-color: #e2e8f0;
+  background-color: hsl(var(--muted));
 }
 
 .skeleton-shimmer::after {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--card) / 0.7),
+    transparent
+  );
   animation: shimmer 1.6s infinite;
   content: "";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .skeleton-shimmer::after {
+    animation: none;
+  }
 }
 
 @keyframes shimmer {

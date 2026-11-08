@@ -21,15 +21,15 @@ export function PageHeader({
       )}
     >
       <div className="min-w-0">
-        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-600">
+        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
           <Building2 className="h-3.5 w-3.5" aria-hidden="true" />
           {COMPANY_NAME}
         </p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           {title}
         </h1>
         {description ? (
-          <p className="mt-1.5 max-w-3xl text-sm text-slate-500">{description}</p>
+          <p className="mt-1.5 max-w-3xl text-sm text-muted-foreground">{description}</p>
         ) : null}
       </div>
       {children ? <div className="flex flex-wrap items-center gap-2">{children}</div> : null}
