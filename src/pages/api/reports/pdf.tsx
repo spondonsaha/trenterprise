@@ -1,26 +1,35 @@
 import { renderToBuffer } from "@react-pdf/renderer";
-import { getSessionUser } from "@/lib/permissions";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getApiSessionUser } from "@/lib/api-auth";
 import { generateReport, isReportType } from "@/lib/reports";
 import { getSettings } from "@/lib/settings";
 import { ReportPdf, type ReportPdfData } from "@/lib/pdf/report-pdf";
 import { COMPANY_SLUG } from "@/lib/constants";
 import { formatDateTime, sanitizeFileName } from "@/lib/utils";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const config = {
+  api: { responseLimit: false },
+};
 
-export async function GET(request: Request) {
-  const user = await getSessionUser();
-  if (!user) return new Response("Unauthorized", { status: 401 });
+function queryValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
 
-  const url = new URL(request.url);
-  const typeParam = url.searchParams.get("type") ?? "sales";
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).send("Method Not Allowed");
+  }
+
+  const user = await getApiSessionUser(req, res);
+  if (!user) return res.status(401).send("Unauthorized");
+
+  const typeParam = queryValue(req.query.type) ?? "sales";
   const type = isReportType(typeParam) ? typeParam : "sales";
   const report = await generateReport(
     type,
-    url.searchParams.get("from") ?? undefined,
-    url.searchParams.get("to") ?? undefined,
+    queryValue(req.query.from),
+    queryValue(req.query.to),
   );
   const settings = await getSettings();
 
@@ -47,11 +56,8 @@ export async function GET(request: Request) {
     `${COMPANY_SLUG}-${report.type}-report-${report.range.from}-to-${report.range.to}.pdf`,
   );
 
-  return new Response(new Uint8Array(buffer), {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${fileName}"`,
-      "Cache-Control": "no-store",
-    },
-  });
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+  res.setHeader("Cache-Control", "no-store");
+  return res.status(200).send(Buffer.from(buffer));
 }

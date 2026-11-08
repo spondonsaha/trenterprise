@@ -1,29 +1,34 @@
 import { renderToBuffer } from "@react-pdf/renderer";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getApiSessionUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/permissions";
 import { getSettings } from "@/lib/settings";
 import { InvoicePdf, type InvoicePdfData } from "@/lib/pdf/invoice-pdf";
 import { formatAmount } from "@/lib/money";
 import { COMPANY_SLUG, INVOICE_STATUS_LABELS } from "@/lib/constants";
 import { formatDate, sanitizeFileName } from "@/lib/utils";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const config = {
+  api: { responseLimit: false },
+};
 
-export async function GET(
-  _request: Request,
-  { params: paramsPromise }: { params: Promise<{ id: string }> },
-) {
-  const params = await paramsPromise;
-  const user = await getSessionUser();
-  if (!user) return new Response("Unauthorized", { status: 401 });
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).send("Method Not Allowed");
+  }
+
+  const user = await getApiSessionUser(req, res);
+  if (!user) return res.status(401).send("Unauthorized");
+
+  const id = Array.isArray(req.query.id) ? req.query.id[0] : req.query.id;
+  if (!id) return res.status(400).send("Invoice id is required");
 
   const invoice = await prisma.invoice.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { items: true },
   });
-  if (!invoice) return new Response("Invoice not found", { status: 404 });
+  if (!invoice) return res.status(404).send("Invoice not found");
 
   const settings = await getSettings();
 
@@ -74,11 +79,8 @@ export async function GET(
   const buffer = await renderToBuffer(<InvoicePdf data={data} />);
   const fileName = `${COMPANY_SLUG}-Invoice-${sanitizeFileName(invoice.invoiceNumber)}.pdf`;
 
-  return new Response(new Uint8Array(buffer), {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${fileName}"`,
-      "Cache-Control": "no-store",
-    },
-  });
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+  res.setHeader("Cache-Control", "no-store");
+  return res.status(200).send(Buffer.from(buffer));
 }
