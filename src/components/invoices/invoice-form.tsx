@@ -479,13 +479,15 @@ export function InvoiceForm({
               {fields.map((field, index) => {
                 const line = values.items?.[index];
                 const product = line?.productId ? productsById.get(line.productId) : undefined;
-                const linePieces = product
-                  ? saleLinePieces(
-                      (line?.unit ?? "CARTON") as "CARTON" | "PIECE",
-                      Number(line?.quantity) || 0,
-                      product.piecesPerCarton,
-                    )
-                  : 0;
+                const quantity = Number(line?.quantity) || 0;
+                const linePieces =
+                  product && quantity >= 1
+                    ? saleLinePieces(
+                        (line?.unit ?? "CARTON") as "CARTON" | "PIECE",
+                        quantity,
+                        Math.max(1, product.piecesPerCarton),
+                      )
+                    : 0;
                 const shortOnStock = product ? linePieces > product.stockPieces : false;
                 const lineTotal =
                   (Number(line?.quantity) || 0) * (Number(line?.unitPrice) || 0);
@@ -977,19 +979,24 @@ function ProductSelect({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const selected = products.find((product) => product.id === value);
-  const filtered = products
-    .filter((product) => {
-      if (!query.trim()) return true;
-      const needle = query.trim().toLowerCase();
-      return (
-        product.name.toLowerCase().includes(needle) ||
-        product.sku.toLowerCase().includes(needle) ||
-        (product.brand ?? "").toLowerCase().includes(needle) ||
-        (product.color ?? "").toLowerCase().includes(needle)
-      );
-    })
-    .slice(0, 30);
+  const selected = useMemo(
+    () => products.find((product) => product.id === value),
+    [products, value],
+  );
+  const filtered = useMemo(() => {
+    if (!open) return [];
+    const needle = query.trim().toLowerCase();
+    if (!needle) return products.slice(0, 30);
+    return products
+      .filter(
+        (product) =>
+          product.name.toLowerCase().includes(needle) ||
+          product.sku.toLowerCase().includes(needle) ||
+          (product.brand ?? "").toLowerCase().includes(needle) ||
+          (product.color ?? "").toLowerCase().includes(needle),
+      )
+      .slice(0, 30);
+  }, [open, products, query]);
 
   return (
     <div className="relative">

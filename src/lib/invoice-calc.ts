@@ -76,7 +76,11 @@ export function computeInvoiceTotals(input: InvoiceTotalsInput): InvoiceTotals {
     total: total.toFixed(2),
     paidAmount: paid.toFixed(2),
     dueAmount: round2(due).toFixed(2),
-    linePieces: input.items.map((line) => saleLinePieces(line.unit, line.quantity, line.piecesPerCarton)),
+    linePieces: input.items.map((line) => {
+      const quantity = Number(line.quantity);
+      const piecesPerCarton = Math.max(1, Number(line.piecesPerCarton) || 1);
+      return quantity >= 1 ? saleLinePieces(line.unit, quantity, piecesPerCarton) : 0;
+    }),
   };
 }
 

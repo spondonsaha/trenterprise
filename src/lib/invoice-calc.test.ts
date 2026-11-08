@@ -53,6 +53,23 @@ describe("invoice calculations", () => {
     expect(capped.total).toBe("0.00");
   });
 
+  it("handles empty or zero quantities without throwing", () => {
+    const totals = computeInvoiceTotals({
+      items: [
+        { quantity: 0, unit: "CARTON", unitPrice: 100, piecesPerCarton: 10 },
+        { quantity: 0, unit: "PIECE", unitPrice: 12.5, piecesPerCarton: 10 },
+      ],
+      discountType: "AMOUNT",
+      discountValue: 0,
+      taxRate: 10,
+      shipping: 0,
+    });
+
+    expect(totals.subtotal).toBe("0.00");
+    expect(totals.total).toBe("0.00");
+    expect(totals.linePieces).toEqual([0, 0]);
+  });
+
   it("honours manual totals and paid amounts", () => {
     const totals = computeInvoiceTotals({
       items: baseItems,
