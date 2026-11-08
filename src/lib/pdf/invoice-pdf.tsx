@@ -159,6 +159,11 @@ export type InvoicePdfData = {
   total: string;
   paidAmount: string;
   dueAmount: string;
+  hasDiscount: boolean;
+  hasTax: boolean;
+  hasShipping: boolean;
+  hasPaid: boolean;
+  hasDue: boolean;
   notes: string | null;
   terms: string | null;
 };
@@ -169,11 +174,7 @@ function amount(data: InvoicePdfData, value: string) {
 
 export function InvoicePdf({ data }: { data: InvoicePdfData }) {
   const hasItems = data.items.length > 0;
-  const hasDiscount = Number(data.discountAmount) > 0;
-  const hasTax = Number(data.taxAmount) > 0;
-  const hasShipping = Number(data.shipping) > 0;
-  const hasPaid = Number(data.paidAmount) > 0;
-  const hasDue = Number(data.dueAmount) > 0;
+  const { hasDiscount, hasTax, hasShipping, hasPaid, hasDue } = data;
 
   return (
     <Document title={`${COMPANY_NAME} Invoice ${data.invoiceNumber}`} author={COMPANY_NAME}>

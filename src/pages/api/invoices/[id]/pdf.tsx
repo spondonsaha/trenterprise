@@ -73,6 +73,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     total: formatAmount(invoice.total),
     paidAmount: formatAmount(invoice.paidAmount),
     dueAmount: formatAmount(invoice.dueAmount),
+    hasDiscount: Number(invoice.discountAmount) > 0,
+    hasTax: Number(invoice.taxAmount) > 0,
+    hasShipping: Number(invoice.shipping) > 0,
+    hasPaid: Number(invoice.paidAmount) > 0,
+    hasDue: Number(invoice.dueAmount) > 0,
     notes: invoice.notes,
     terms: invoice.terms,
   };
