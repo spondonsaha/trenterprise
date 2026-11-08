@@ -3,6 +3,12 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ["@react-pdf/renderer"],
+  outputFileTracingIncludes: {
+    "/*": [
+      "./node_modules/pdfkit/js/standard-fonts/**/*",
+      "./node_modules/pdfkit/js/data/**/*",
+    ],
+  },
   async headers() {
     return [
       {
