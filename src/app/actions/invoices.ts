@@ -75,7 +75,12 @@ function buildTotals(
     };
   }
 
-  if (data.manualTotal !== null && data.manualTotal !== undefined && !canOverridePrice(user)) {
+  const manualTotal =
+    data.manualTotal !== null && data.manualTotal !== undefined && D(data.manualTotal).gt(0)
+      ? data.manualTotal
+      : null;
+
+  if (manualTotal !== null && !canOverridePrice(user)) {
     throw new AppError("You do not have permission to override the invoice total.");
   }
 
@@ -85,7 +90,7 @@ function buildTotals(
     discountValue: data.discountValue,
     taxRate: data.taxRate,
     shipping: data.shipping,
-    manualTotal: data.manualTotal ?? null,
+    manualTotal,
     paidAmount: 0,
   });
 

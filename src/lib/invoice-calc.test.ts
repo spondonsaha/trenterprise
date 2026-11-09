@@ -84,6 +84,20 @@ describe("invoice calculations", () => {
     expect(totals.dueAmount).toBe("200.00");
   });
 
+  it("ignores empty or zero manual totals so calculated totals still apply", () => {
+    for (const manualTotal of [0, "", null, undefined]) {
+      const totals = computeInvoiceTotals({
+        items: baseItems,
+        discountType: "AMOUNT",
+        discountValue: 0,
+        taxRate: 0,
+        shipping: 0,
+        manualTotal,
+      });
+      expect(totals.total).toBe("237.50");
+    }
+  });
+
   it("never produces a negative due amount", () => {
     const totals = computeInvoiceTotals({
       items: baseItems,

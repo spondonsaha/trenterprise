@@ -79,6 +79,12 @@ const emptyLine = {
 const selectClass =
   "h-10 w-full rounded-md border border-input bg-white px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60";
 
+function normalizeManualTotal(value: number | null | undefined): number | null {
+  if (value === null || value === undefined) return null;
+  const amount = Number(value);
+  return Number.isFinite(amount) && amount > 0 ? amount : null;
+}
+
 export function InvoiceForm({
   products,
   customers,
@@ -168,10 +174,7 @@ export function InvoiceForm({
         discountValue: Number(values.discountValue) || 0,
         taxRate: Number(values.taxRate) || 0,
         shipping: Number(values.shipping) || 0,
-        manualTotal:
-          values.manualTotal === undefined || values.manualTotal === null
-            ? null
-            : Number(values.manualTotal),
+        manualTotal: normalizeManualTotal(values.manualTotal),
       }),
     [isQuick, values],
   );
@@ -255,10 +258,7 @@ export function InvoiceForm({
       const payload: InvoiceInput = {
         ...values,
         items: values.isQuick ? [] : values.items,
-        manualTotal:
-          values.manualTotal === undefined || Number.isNaN(Number(values.manualTotal))
-            ? null
-            : values.manualTotal,
+        manualTotal: normalizeManualTotal(values.manualTotal),
       };
       const result = initial?.id
         ? await updateInvoice({ ...payload, id: initial.id }, saveAsDraft)
@@ -438,7 +438,10 @@ export function InvoiceForm({
                   className="h-11 text-lg font-semibold"
                   disabled={pending !== null}
                   {...register("manualTotal", {
-                    setValueAs: (value) => (value === "" ? null : Number(value)),
+                    setValueAs: (value) =>
+                      value === "" || value === null || value === undefined
+                        ? null
+                        : Number(value),
                   })}
                 />
                 {errors.manualTotal ? (
@@ -901,7 +904,10 @@ export function InvoiceForm({
                         className="h-9"
                         disabled={pending !== null}
                         {...register("manualTotal", {
-                          setValueAs: (value) => (value === "" ? null : Number(value)),
+                          setValueAs: (value) =>
+                            value === "" || value === null || value === undefined
+                              ? null
+                              : Number(value),
                         })}
                       />
                       <p className="text-[11px] text-slate-500">
