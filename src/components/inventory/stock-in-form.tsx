@@ -52,9 +52,11 @@ function newRow(key: number): Row {
 export function StockInForm({
   products,
   suppliers,
+  defaultProductId,
 }: {
   products: StockProductOption[];
   suppliers: SupplierOption[];
+  defaultProductId?: string;
 }) {
   const router = useRouter();
   const [supplierId, setSupplierId] = useState("");
@@ -62,7 +64,19 @@ export function StockInForm({
   const [referenceNumber, setReferenceNumber] = useState("");
   const [note, setNote] = useState("");
   const [updateCost, setUpdateCost] = useState(true);
-  const [rows, setRows] = useState<Row[]>([newRow(1)]);
+  const [rows, setRows] = useState<Row[]>(() => {
+    const product = products.find((option) => option.id === defaultProductId);
+    return [
+      {
+        ...newRow(1),
+        productId: product?.id ?? "",
+        costPerCarton:
+          product && product.costPrice > 0
+            ? String(product.costPrice * product.piecesPerCarton)
+            : "",
+      },
+    ];
+  });
   const [nextKey, setNextKey] = useState(2);
   const [pending, setPending] = useState(false);
 
@@ -143,7 +157,7 @@ export function StockInForm({
         })),
       });
       if (result.ok) {
-        toast.success(`Stock received as purchase ${result.data.purchaseNumber}.`);
+        toast.success(`Stock added as purchase ${result.data.purchaseNumber}.`);
         router.push("/inventory");
         router.refresh();
       } else {
@@ -159,9 +173,9 @@ export function StockInForm({
       <div className="space-y-5 lg:col-span-2">
         <Card>
           <CardHeader>
-            <CardTitle>Purchase details</CardTitle>
+            <CardTitle>Stock details</CardTitle>
             <CardDescription>
-              Record a supplier purchase. Each line converts cartons to pieces automatically.
+              Who supplied it and when. Only the date is needed.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -335,8 +349,8 @@ export function StockInForm({
       <div>
         <Card className="lg:sticky lg:top-24">
           <CardHeader>
-            <CardTitle>Receive stock</CardTitle>
-            <CardDescription>Review before posting to the ledger.</CardDescription>
+            <CardTitle>Add stock</CardTitle>
+            <CardDescription>Check the quantity, then save.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2 rounded-lg bg-slate-50 p-3 text-sm">
@@ -378,7 +392,7 @@ export function StockInForm({
               ) : (
                 <ArrowDownToLine className="h-4 w-4" />
               )}
-              {pending ? "Posting..." : "Post stock in"}
+              {pending ? "Saving..." : "Add stock"}
             </Button>
             <Button type="button" variant="outline" className="w-full" asChild disabled={pending}>
               <Link href="/inventory">Cancel</Link>

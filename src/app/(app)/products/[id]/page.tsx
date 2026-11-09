@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   Archive,
+  ArrowDownToLine,
   ArrowLeft,
   Boxes,
   History,
@@ -93,7 +94,9 @@ export default async function ProductDetailPage({
     <>
       <PageHeader
         title={product.name}
-        description={`${product.brand} · ${product.color} · ${product.sku}${product.category ? ` · ${product.category.name}` : ""}`}
+        description={[product.brand, product.color, product.sku, product.category?.name]
+          .filter(Boolean)
+          .join(" · ")}
       >
         <Button variant="outline" asChild>
           <Link href="/products">
@@ -101,6 +104,14 @@ export default async function ProductDetailPage({
             Products
           </Link>
         </Button>
+        {canManage ? (
+          <Button asChild>
+            <Link href={`/inventory/stock-in?productId=${product.id}`}>
+              <ArrowDownToLine className="h-4 w-4" />
+              Add stock
+            </Link>
+          </Button>
+        ) : null}
         {canManage ? (
           <RateDialog
             product={{

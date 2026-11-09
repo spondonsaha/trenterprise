@@ -34,7 +34,7 @@ import { MOVEMENT_TYPE_LABELS, PAGE_SIZE } from "@/lib/constants";
 import { formatDate, formatDateTime, getIntParam, getStringParam } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Inventory",
+  title: "Stock",
 };
 
 const selectClass =
@@ -105,8 +105,8 @@ export default async function InventoryPage({
   return (
     <>
       <PageHeader
-        title="Inventory"
-        description="Live carton and piece stock levels, purchasing and stock movement history for TR Enterprise."
+        title="Stock"
+        description="What you have on the shelf, what is running low, and every stock movement."
       >
         {user.role === "ADMIN" ? (
           <Button variant="outline" asChild>
@@ -119,19 +119,19 @@ export default async function InventoryPage({
         <Button variant="outline" asChild>
           <Link href="/inventory/adjust">
             <ClipboardList className="h-4 w-4" />
-            Adjust
+            Count stock
           </Link>
         </Button>
         <Button variant="outline" asChild>
           <Link href="/inventory/stock-out">
             <ArrowUpFromLine className="h-4 w-4" />
-            Stock out
+            Remove stock
           </Link>
         </Button>
         <Button asChild>
           <Link href="/inventory/stock-in">
             <ArrowDownToLine className="h-4 w-4" />
-            Stock in
+            Add stock
           </Link>
         </Button>
       </PageHeader>

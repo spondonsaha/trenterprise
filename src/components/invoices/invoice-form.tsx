@@ -823,68 +823,75 @@ export function InvoiceForm({
               <>
                 <div className="space-y-2 text-sm">
                   <SummaryRow label="Subtotal" value={formatMoney(calc.subtotal)} />
-                  <div className="flex items-center justify-between gap-2 text-slate-600">
-                    <span>Discount</span>
-                    <div className="flex items-center gap-1">
-                      <select
-                        className="h-8 rounded-md border border-input bg-white px-2 text-xs"
-                        disabled={pending !== null}
-                        {...register("discountType")}
-                      >
-                        <option value="AMOUNT">৳</option>
-                        <option value="PERCENT">%</option>
-                      </select>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        className="h-8 w-24 text-right"
-                        disabled={pending !== null}
-                        {...register("discountValue", {
-                          setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                        })}
-                      />
+                  <details className="border-t border-border pt-2">
+                    <summary className="cursor-pointer text-xs font-medium text-slate-500">
+                      Discount, tax and shipping
+                    </summary>
+                    <div className="mt-2 space-y-2">
+                      <div className="flex items-center justify-between gap-2 text-slate-600">
+                        <span>Discount</span>
+                        <div className="flex items-center gap-1">
+                          <select
+                            className="h-8 rounded-md border border-input bg-white px-2 text-xs"
+                            disabled={pending !== null}
+                            {...register("discountType")}
+                          >
+                            <option value="AMOUNT">৳</option>
+                            <option value="PERCENT">%</option>
+                          </select>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            className="h-8 w-24 text-right"
+                            disabled={pending !== null}
+                            {...register("discountValue", {
+                              setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                            })}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 text-slate-600">
+                        <span>Tax rate (%)</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          className="h-8 w-24 text-right"
+                          disabled={pending !== null}
+                          {...register("taxRate", {
+                            setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                          })}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between gap-2 text-slate-600">
+                        <span>Shipping</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className="h-8 w-24 text-right"
+                          disabled={pending !== null}
+                          {...register("shipping", {
+                            setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                          })}
+                        />
+                      </div>
+                      {Number(calc.discountAmount) > 0 ? (
+                        <SummaryRow
+                          label="Discount applied"
+                          value={`− ${formatMoney(calc.discountAmount)}`}
+                        />
+                      ) : null}
+                      {Number(calc.taxAmount) > 0 ? (
+                        <SummaryRow label="Tax" value={formatMoney(calc.taxAmount)} />
+                      ) : null}
+                      {Number(calc.shipping) > 0 ? (
+                        <SummaryRow label="Shipping" value={formatMoney(calc.shipping)} />
+                      ) : null}
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between gap-2 text-slate-600">
-                    <span>Tax rate (%)</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      className="h-8 w-24 text-right"
-                      disabled={pending !== null}
-                      {...register("taxRate", {
-                        setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                      })}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between gap-2 text-slate-600">
-                    <span>Shipping</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      className="h-8 w-24 text-right"
-                      disabled={pending !== null}
-                      {...register("shipping", {
-                        setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                      })}
-                    />
-                  </div>
-                  {Number(calc.discountAmount) > 0 ? (
-                    <SummaryRow
-                      label="Discount applied"
-                      value={`− ${formatMoney(calc.discountAmount)}`}
-                    />
-                  ) : null}
-                  {Number(calc.taxAmount) > 0 ? (
-                    <SummaryRow label="Tax" value={formatMoney(calc.taxAmount)} />
-                  ) : null}
-                  {Number(calc.shipping) > 0 ? (
-                    <SummaryRow label="Shipping" value={formatMoney(calc.shipping)} />
-                  ) : null}
+                  </details>
                 </div>
 
                 {canOverridePrice ? (

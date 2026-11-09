@@ -55,8 +55,8 @@ export default async function NewInvoicePage({
   return (
     <>
       <PageHeader
-        title="New invoice"
-        description="Create an itemized sale or a quick invoice for TR Enterprise."
+        title="New sale"
+        description="Choose a quick sale for a single total, or an itemized sale to deduct stock."
       >
         <Button variant="outline" asChild>
           <Link href="/invoices">
@@ -76,7 +76,7 @@ export default async function NewInvoicePage({
         defaultDate={todayDateInput()}
         defaultDueDate={toDateInputValue(addDays(new Date(), DEFAULT_DUE_DAYS))}
         canOverridePrice={canOverridePrice(user)}
-        defaultIsQuick={searchParams?.mode === "quick"}
+        defaultIsQuick={searchParams?.mode !== "itemized"}
       />
     </>
   );

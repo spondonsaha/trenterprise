@@ -95,7 +95,7 @@ export default async function InvoicesPage({
     <>
       <PageHeader
         title="Invoices"
-        description="Create, finalize and track TR Enterprise sales invoices."
+        description="Every sale, what was paid, and what is still owed."
       >
         <Button variant="outline" asChild>
           <Link href="/invoices/new?mode=quick">

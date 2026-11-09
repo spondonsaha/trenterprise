@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import {
   BarChart3,
   Boxes,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleDollarSign,
@@ -49,31 +50,56 @@ type NavItem = {
   shortLabel?: string;
 };
 
-const MAIN_NAV: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, shortLabel: "Home" },
-  { href: "/invoices", label: "Invoices", icon: FileText },
-  { href: "/payments", label: "Payments", icon: Wallet },
-  { href: "/dues", label: "Dues & Receivables", icon: CircleDollarSign, shortLabel: "Dues" },
-  { href: "/products", label: "Products", icon: Package },
-  { href: "/inventory", label: "Inventory", icon: Boxes },
-  { href: "/customers", label: "Customers", icon: Users },
-  { href: "/suppliers", label: "Suppliers", icon: Truck, adminOnly: true },
-  { href: "/reports", label: "Reports", icon: BarChart3 },
-];
+type NavGroup = {
+  label?: string;
+  items: NavItem[];
+};
 
-const ADMIN_NAV: NavItem[] = [
-  { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
-  { href: "/users", label: "Users & Roles", icon: UserCog, adminOnly: true },
-  { href: "/audit", label: "Audit Log", icon: ScrollText, adminOnly: true },
+const NAV_GROUPS: NavGroup[] = [
+  {
+    items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, shortLabel: "Home" }],
+  },
+  {
+    label: "Sell",
+    items: [
+      { href: "/invoices", label: "Invoices", icon: FileText },
+      { href: "/dues", label: "Unpaid Bills", icon: CircleDollarSign, shortLabel: "Unpaid" },
+      { href: "/payments", label: "Payments", icon: Wallet },
+    ],
+  },
+  {
+    label: "Stock",
+    items: [
+      { href: "/products", label: "Products", icon: Package },
+      { href: "/inventory", label: "Stock", icon: Boxes },
+      { href: "/suppliers", label: "Suppliers", icon: Truck, adminOnly: true },
+    ],
+  },
+  {
+    label: "People",
+    items: [{ href: "/customers", label: "Customers", icon: Users }],
+  },
+  {
+    label: "Insights",
+    items: [{ href: "/reports", label: "Reports", icon: BarChart3 }],
+  },
+  {
+    label: "Admin",
+    items: [
+      { href: "/settings", label: "Settings", icon: Settings, adminOnly: true },
+      { href: "/users", label: "Users & Roles", icon: UserCog, adminOnly: true },
+      { href: "/audit", label: "Audit Log", icon: ScrollText, adminOnly: true },
+    ],
+  },
 ];
 
 const BOTTOM_NAV_LEFT: NavItem[] = [
   { href: "/dashboard", label: "Home", icon: LayoutDashboard },
-  { href: "/invoices", label: "Invoices", icon: ReceiptText },
+  { href: "/invoices", label: "Sales", icon: ReceiptText },
 ];
 
 const BOTTOM_NAV_RIGHT: NavItem[] = [
-  { href: "/customers", label: "Customers", icon: Users },
+  { href: "/inventory", label: "Stock", icon: Boxes },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -154,48 +180,57 @@ function SidebarContent({
   collapsed?: boolean;
   onNavigate?: () => void;
 }) {
-  const mainItems = MAIN_NAV.filter((item) => !item.adminOnly || user.role === "ADMIN");
-  const adminItems = ADMIN_NAV.filter((item) => !item.adminOnly || user.role === "ADMIN");
+  const [closedGroups, setClosedGroups] = useState<Record<string, boolean>>({});
+  const groups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.adminOnly || user.role === "ADMIN"),
+  })).filter((group) => group.items.length > 0);
+
+  function toggleGroup(label: string) {
+    setClosedGroups((current) => ({ ...current, [label]: !current[label] }));
+  }
 
   return (
     <div className="flex h-full flex-col">
       <div className={cn("flex h-20 items-center border-b border-white/10 px-5", collapsed && "justify-center px-0")}>
         <Brand collapsed={collapsed} />
       </div>
-      <nav className={cn("flex-1 space-y-1 overflow-y-auto scrollbar-thin px-3 py-4", collapsed && "px-2")} aria-label="Main navigation">
-        {!collapsed ? (
-          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Workspace
-          </p>
-        ) : null}
-        {mainItems.map((item) => (
-          <NavLink
-            key={item.href}
-            item={item}
-            active={isActive(pathname, item.href)}
-            collapsed={collapsed}
-            onNavigate={onNavigate}
-          />
-        ))}
-        {adminItems.length > 0 ? (
-          <>
-            <div className={cn("my-4 border-t border-white/10", collapsed && "mx-1")} />
-            {!collapsed ? (
-              <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Administration
-              </p>
-            ) : null}
-            {adminItems.map((item) => (
-              <NavLink
-                key={item.href}
-                item={item}
-                active={isActive(pathname, item.href)}
-                collapsed={collapsed}
-                onNavigate={onNavigate}
-              />
-            ))}
-          </>
-        ) : null}
+      <nav className={cn("flex-1 overflow-y-auto scrollbar-thin px-3 py-4", collapsed && "px-2")} aria-label="Main navigation">
+        {groups.map((group) => {
+          const key = group.label ?? "main";
+          const closed = Boolean(closedGroups[key]);
+          return (
+            <div key={key} className="pb-1">
+              {!collapsed && group.label ? (
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(key)}
+                  className="flex w-full items-center justify-between rounded-md px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 transition-colors hover:text-slate-300"
+                  aria-expanded={!closed}
+                >
+                  {group.label}
+                  <ChevronDown
+                    className={cn(
+                      "h-3.5 w-3.5 transition-transform",
+                      closed && "-rotate-90",
+                    )}
+                  />
+                </button>
+              ) : null}
+              {!closed || collapsed
+                ? group.items.map((item) => (
+                    <NavLink
+                      key={item.href}
+                      item={item}
+                      active={isActive(pathname, item.href)}
+                      collapsed={collapsed}
+                      onNavigate={onNavigate}
+                    />
+                  ))
+                : null}
+            </div>
+          );
+        })}
       </nav>
       <div className={cn("border-t border-white/10 p-3", collapsed && "px-2")}>
         {!collapsed ? (
@@ -259,7 +294,7 @@ export function AppShell({
   }
 
   const section = useMemo(() => {
-    const all = [...MAIN_NAV, ...ADMIN_NAV];
+    const all = NAV_GROUPS.flatMap((group) => group.items);
     return all.find((item) => isActive(pathname, item.href))?.label ?? "Dashboard";
   }, [pathname]);
 

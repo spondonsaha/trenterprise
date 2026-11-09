@@ -8,11 +8,16 @@ import { prisma } from "@/lib/prisma";
 import { requirePageUser } from "@/lib/permissions";
 
 export const metadata: Metadata = {
-  title: "Stock in",
+  title: "Add stock",
 };
 
-export default async function StockInPage() {
+export default async function StockInPage({
+  searchParams: searchParamsPromise,
+}: {
+  searchParams: Promise<{ productId?: string }>;
+}) {
   await requirePageUser();
+  const searchParams = await searchParamsPromise;
 
   const [products, suppliers] = await Promise.all([
     prisma.product.findMany({
@@ -37,13 +42,13 @@ export default async function StockInPage() {
   return (
     <>
       <PageHeader
-        title="Stock in"
-        description="Receive a purchase from a supplier and update carton-level stock and product cost."
+        title="Add stock"
+        description="Enter the cartons or pieces you received. Stock is updated immediately."
       >
         <Button variant="outline" asChild>
           <Link href="/inventory">
             <ArrowLeft className="h-4 w-4" />
-            Back to inventory
+            Back to stock
           </Link>
         </Button>
       </PageHeader>
@@ -57,6 +62,7 @@ export default async function StockInPage() {
           stockPieces: product.stockPieces,
         }))}
         suppliers={suppliers}
+        defaultProductId={searchParams.productId}
       />
     </>
   );

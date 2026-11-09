@@ -13,6 +13,7 @@ import {
 import {
   Archive,
   ArrowDown,
+  ArrowDownToLine,
   ArrowUp,
   ArrowUpDown,
   Eye,
@@ -159,7 +160,9 @@ export function ProductsTable({
               {row.original.name}
             </Link>
             <p className="mt-0.5 text-xs text-slate-500">
-              {row.original.sku} · {row.original.brand} · {row.original.color}
+              {[row.original.sku, row.original.brand, row.original.color]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
           </div>
         ),
@@ -244,6 +247,14 @@ export function ProductsTable({
                       View details
                     </Link>
                   </DropdownMenuItem>
+                  {canManage && !product.isArchived ? (
+                    <DropdownMenuItem asChild>
+                      <Link href={`/inventory/stock-in?productId=${product.id}`}>
+                        <ArrowDownToLine className="h-4 w-4" />
+                        Add stock
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
                   {canManage ? (
                     <DropdownMenuItem asChild>
                       <Link href={`/products/${product.id}/edit`}>

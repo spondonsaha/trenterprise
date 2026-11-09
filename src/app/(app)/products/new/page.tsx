@@ -25,7 +25,7 @@ export default async function NewProductPage() {
     <>
       <PageHeader
         title="Add product"
-        description="Create a new catalogue item with carton pricing, piece pricing and a low-stock level."
+        description="Add the product, set its prices, and put opening stock on the shelf in one step."
       >
         <Button variant="outline" asChild>
           <Link href="/products">

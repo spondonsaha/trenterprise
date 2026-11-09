@@ -8,6 +8,7 @@ import {
   Plus,
   Truck,
   UserPlus,
+  Wallet,
   Zap,
   type LucideIcon,
 } from "lucide-react";
@@ -41,21 +42,27 @@ export function QuickActions({
   const actions: QuickAction[] = [
     {
       href: "/invoices/new?mode=quick",
-      label: "Quick invoice",
+      label: "New sale",
       description: "Customer and total only",
       icon: Zap,
     },
     {
-      href: "/invoices/new",
-      label: "Itemized invoice",
-      description: "Bill products and stock",
+      href: "/invoices/new?mode=itemized",
+      label: "Itemized sale",
+      description: "Bill products and deduct stock",
       icon: FileText,
     },
     {
       href: "/inventory/stock-in",
-      label: "Stock in",
+      label: "Add stock",
       description: "Add cartons or pieces",
       icon: ArrowDownToLine,
+    },
+    {
+      href: "/dues",
+      label: "Collect payment",
+      description: "Record a payment on an unpaid bill",
+      icon: Wallet,
     },
     {
       href: "/customers/new",

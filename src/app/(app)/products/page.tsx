@@ -138,7 +138,7 @@ export default async function ProductsPage({
             href="/inventory"
             className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
           >
-            Inventory
+            Stock
             <ArrowRight className="h-4 w-4" />
           </Link>
         </CardHeader>

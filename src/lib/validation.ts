@@ -34,15 +34,13 @@ export const loginSchema = z.object({
 
 export const productSchema = z.object({
   name: z.string().trim().min(2, "Product name is required.").max(150),
-  sku: z
-    .string()
-    .trim()
-    .min(2, "SKU is required.")
-    .max(60)
-    .regex(/^[A-Za-z0-9._-]+$/, "SKU may contain letters, numbers, dots, dashes and underscores."),
+  sku: optionalText(60).refine(
+    (value) => !value || /^[A-Za-z0-9._-]+$/.test(value),
+    "SKU may contain letters, numbers, dots, dashes and underscores.",
+  ),
   categoryId: optionalText(100),
-  brand: z.string().trim().min(1, "Brand is required.").max(80),
-  color: z.string().trim().min(1, "Color is required.").max(60),
+  brand: optionalText(80),
+  color: optionalText(60),
   description: optionalText(1500),
   active: z.boolean().default(true),
   piecesPerCarton: z
@@ -63,6 +61,16 @@ export const productSchema = z.object({
 export const productUpdateSchema = productSchema.extend({
   id: z.string().min(1),
 });
+
+export const openingStockSchema = z
+  .object({
+    cartons: z.number().int().min(0).max(1_000_000).default(0),
+    pieces: z.number().int().min(0).max(1_000_000).default(0),
+    costPerCarton: money.optional(),
+  })
+  .refine((stock) => stock.cartons > 0 || stock.pieces > 0, {
+    message: "Enter a carton or piece quantity.",
+  });
 
 export const rateUpdateSchema = z.object({
   productId: z.string().min(1),
@@ -298,6 +306,7 @@ export const userUpdateSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProductInput = z.infer<typeof productSchema>;
 export type ProductUpdateInput = z.infer<typeof productUpdateSchema>;
+export type OpeningStockInput = z.infer<typeof openingStockSchema>;
 export type RateUpdateInput = z.infer<typeof rateUpdateSchema>;
 export type BulkRateInput = z.infer<typeof bulkRateSchema>;
 export type CategoryInput = z.infer<typeof categorySchema>;

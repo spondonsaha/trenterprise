@@ -35,7 +35,7 @@ import {
 } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Dues",
+  title: "Unpaid bills",
 };
 
 const BUCKETS = [
@@ -124,8 +124,8 @@ export default async function DuesPage({
   return (
     <>
       <PageHeader
-        title="Dues"
-        description="Outstanding invoice balances and receivables aging for TR Enterprise."
+        title="Unpaid bills"
+        description="Bills that still have a balance, oldest first. Open a bill to record a payment."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
