@@ -61,7 +61,7 @@ export function computeInvoiceTotals(input: InvoiceTotalsInput): InvoiceTotals {
     input.manualTotal !== null &&
     input.manualTotal !== undefined &&
     String(input.manualTotal) !== "" &&
-    D(input.manualTotal).gte(0);
+    D(input.manualTotal).gt(0);
 
   const total = hasManualTotal ? round2(D(input.manualTotal!)) : calculatedTotal;
   const paid = round2(D(input.paidAmount ?? 0));
