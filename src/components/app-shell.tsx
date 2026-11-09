@@ -27,6 +27,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import { GlobalSearch } from "@/components/global-search";
 import { QuickActions } from "@/components/quick-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -377,6 +378,7 @@ export function AppShell({
               </p>
               <p className="truncate text-sm font-semibold text-slate-900">{section}</p>
             </div>
+            <GlobalSearch />
             <QuickActions user={user} />
             <Badge variant="outline" className="hidden border-teal-200 bg-teal-50 text-teal-700 sm:inline-flex">
               {ROLE_LABELS[user.role]}
