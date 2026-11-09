@@ -63,20 +63,27 @@ export function LoginForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate aria-busy={pending}>
       <div className="space-y-2">
         <Label htmlFor="email">Email address</Label>
         <Input
           id="email"
           type="email"
+          inputMode="email"
           autoComplete="email"
+          autoCapitalize="none"
+          spellCheck={false}
           placeholder="you@trenterprise.com"
+          className="h-11"
           disabled={pending}
           aria-invalid={Boolean(errors.email)}
+          aria-describedby={errors.email ? "email-error" : undefined}
           {...register("email")}
         />
         {errors.email ? (
-          <p className="text-xs font-medium text-red-600">{errors.email.message}</p>
+          <p id="email-error" role="alert" className="text-xs font-medium text-danger">
+            {errors.email.message}
+          </p>
         ) : null}
       </div>
 
@@ -88,37 +95,42 @@ export function LoginForm({
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
             placeholder="Enter your password"
-            className="pr-12"
+            className="h-11 pr-12"
             disabled={pending}
             aria-invalid={Boolean(errors.password)}
+            aria-describedby={errors.password ? "password-error" : undefined}
             {...register("password")}
           />
           <button
             type="button"
             onClick={() => setShowPassword((value) => !value)}
-            className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100"
+            className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-md text-slate-500 outline-none transition-colors hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
+            disabled={pending}
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>
         {errors.password ? (
-          <p className="text-xs font-medium text-red-600">{errors.password.message}</p>
+          <p id="password-error" role="alert" className="text-xs font-medium text-danger">
+            {errors.password.message}
+          </p>
         ) : null}
       </div>
 
-      <Button type="submit" className="w-full" size="lg" disabled={pending}>
+      <Button type="submit" className="h-11 w-full" size="lg" disabled={pending}>
         {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-        {pending ? "Signing in..." : "Sign in"}
+        {pending ? "Signing in…" : "Sign in"}
       </Button>
 
       {demo ? (
-        <div className="rounded-lg border border-dashed border-teal-200 bg-teal-50/60 p-3">
+        <div className="rounded-lg border border-dashed border-accent/30 bg-accent/5 p-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">
             Demo access
           </p>
           <p className="mt-1 text-xs text-slate-600">
-            Fill a seeded account, then press Sign in.
+            Fill a demo account, then press Sign in.
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2">
             <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("admin")}>

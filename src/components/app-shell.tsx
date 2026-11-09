@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -303,7 +303,7 @@ export function AppShell({
     <div className="min-h-screen bg-background">
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 hidden border-r border-slate-800 bg-[#0B1B2B] shadow-xl transition-[width] duration-200 lg:block",
+          "fixed inset-y-0 left-0 z-40 hidden border-r border-slate-800 bg-ink shadow-xl transition-[width] duration-200 lg:block",
           collapsed ? "w-20" : "w-72",
         )}
         aria-label="Sidebar"
@@ -327,7 +327,7 @@ export function AppShell({
             onClick={() => setMobileOpen(false)}
             aria-label="Close navigation"
           />
-          <aside className="relative h-full w-72 max-w-[85vw] border-r border-slate-800 bg-[#0B1B2B] shadow-2xl">
+          <aside className="relative h-full w-72 max-w-[85vw] border-r border-slate-800 bg-ink shadow-2xl">
             <button
               type="button"
               onClick={() => setMobileOpen(false)}

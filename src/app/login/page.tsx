@@ -13,18 +13,18 @@ export const metadata: Metadata = {
 const FEATURES = [
   {
     icon: FileText,
-    title: "Invoices & dues",
-    description: "Itemized or quick invoices, payments and ageing receivables.",
+    title: "Sales and unpaid bills",
+    description: "Quick or itemized invoices, payments, and who still owes you.",
   },
   {
     icon: Boxes,
-    title: "Carton-level stock",
-    description: "Track every cartridge by carton and piece with a full ledger.",
+    title: "Stock by carton and piece",
+    description: "See what is on the shelf, what is low, and every movement.",
   },
   {
     icon: Printer,
-    title: "Print-ready documents",
-    description: "Branded invoice, receipt and report PDFs generated on the server.",
+    title: "Invoices and receipts",
+    description: "Print or share clean documents with your shop details on them.",
   },
 ];
 
@@ -43,8 +43,8 @@ export default async function LoginPage({
       : "/dashboard";
 
   return (
-    <main className="grid min-h-screen bg-white lg:grid-cols-[1.05fr_1fr]">
-      <section className="relative hidden overflow-hidden bg-[#0B1B2B] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+    <main className="grid min-h-[100svh] bg-white lg:grid-cols-[1.05fr_1fr]">
+      <section className="relative hidden overflow-hidden bg-ink p-10 text-white lg:flex lg:flex-col lg:justify-between">
         <div
           className="pointer-events-none absolute inset-0 opacity-70"
           style={{
@@ -61,17 +61,17 @@ export default async function LoginPage({
             <div>
               <p className="text-lg font-bold leading-tight">{COMPANY_NAME}</p>
               <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-400">
-                Ink · Toner · Cartridge ERP
+                Ink · Toner · Cartridges
               </p>
             </div>
           </div>
 
           <h1 className="mt-16 max-w-xl text-4xl font-bold leading-tight tracking-tight text-balance">
-            Every cartridge, invoice and payment — in one place.
+            Run your ink and toner shop from one screen.
           </h1>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-300">
-            Purpose-built for {COMPANY_NAME}&apos;s printer ink, toner and cartridge business.
-            Sell by carton or piece, keep stock accurate and never lose sight of a due.
+            Sell by carton or piece, keep stock accurate, and always know who still owes you.
+            Built for {COMPANY_NAME}.
           </p>
 
           <ul className="mt-10 space-y-5">
@@ -96,40 +96,44 @@ export default async function LoginPage({
 
         <div className="relative flex items-center gap-2 text-xs text-slate-400">
           <ShieldCheck className="h-4 w-4 text-teal-400" />
-          Secure credentials sign-in with role-based access.
+          Secure sign-in with admin and staff access.
         </div>
       </section>
 
-      <section className="flex flex-col justify-center px-5 py-10 sm:px-10 lg:px-16">
+      <section className="flex flex-col justify-center bg-slate-50 px-5 py-10 sm:px-10 lg:bg-white lg:px-16">
         <div className="mx-auto w-full max-w-md">
           <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-brand-600 text-sm font-black text-white">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-brand-600 text-sm font-black text-white shadow-md shadow-teal-900/20">
               TR
             </span>
             <div>
               <p className="text-base font-bold text-slate-900">{COMPANY_NAME}</p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-slate-500">
-                ERP
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                Ink · Toner · Cartridges
               </p>
             </div>
           </div>
 
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-600">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
             {COMPANY_NAME}
           </p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-            Sign in to your workspace
+            Sign in
           </h2>
-          <p className="mt-2 text-sm text-slate-500">
-            Use the credentials provided by your administrator. Sessions expire after 8 hours.
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Enter the email and password your administrator gave you.
           </p>
 
-          <div className="mt-8">
+          <div className="mt-8 rounded-xl border border-border bg-white p-5 shadow-card sm:p-6 lg:border-0 lg:p-0 lg:shadow-none">
             <LoginForm
               callbackUrl={callbackUrl}
               demo={process.env.NODE_ENV !== "production"}
             />
           </div>
+
+          <p className="mt-6 text-center text-xs text-slate-500">
+            Forgot your password? Ask your administrator to reset it.
+          </p>
 
           <p className="mt-8 border-t border-border pt-5 text-center text-[11px] leading-relaxed text-slate-500">
             © {new Date().getFullYear()} {COMPANY_NAME}. All rights reserved.

@@ -92,6 +92,11 @@ const config: Config = {
           600: "#0D9488",
           700: "#0F766E",
         },
+        ink: {
+          DEFAULT: "#0B1B2B",
+          800: "#122A44",
+          700: "#173A5E",
+        },
         slateink: {
           50: "#F8FAFC",
           100: "#F1F5F9",
