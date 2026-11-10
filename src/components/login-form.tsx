@@ -12,33 +12,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema, type LoginInput } from "@/lib/validation";
 
-export function LoginForm({
-  callbackUrl,
-  demo = false,
-}: {
-  callbackUrl: string;
-  demo?: boolean;
-}) {
+export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
-
-  function fillDemo(role: "admin" | "staff") {
-    setValue("email", `${role}@trenterprise.com`, { shouldValidate: true });
-    setValue("password", role === "admin" ? "REDACTED" : "REDACTED", {
-      shouldValidate: true,
-    });
-    toast.info(`${role === "admin" ? "Admin" : "Staff"} demo credentials filled in.`);
-  }
 
   async function onSubmit(values: LoginInput) {
     setPending(true);
@@ -123,25 +108,6 @@ export function LoginForm({
         {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
         {pending ? "Signing in…" : "Sign in"}
       </Button>
-
-      {demo ? (
-        <div className="rounded-lg border border-dashed border-accent/30 bg-accent/5 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-700">
-            Demo access
-          </p>
-          <p className="mt-1 text-xs text-slate-600">
-            Fill a demo account, then press Sign in.
-          </p>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("admin")}>
-              Use admin
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => fillDemo("staff")}>
-              Use staff
-            </Button>
-          </div>
-        </div>
-      ) : null}
     </form>
   );
 }

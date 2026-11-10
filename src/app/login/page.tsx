@@ -125,10 +125,7 @@ export default async function LoginPage({
           </p>
 
           <div className="mt-8 rounded-xl border border-border bg-white p-5 shadow-card sm:p-6 lg:border-0 lg:p-0 lg:shadow-none">
-            <LoginForm
-              callbackUrl={callbackUrl}
-              demo={process.env.NODE_ENV !== "production"}
-            />
+            <LoginForm callbackUrl={callbackUrl} />
           </div>
 
           <p className="mt-6 text-center text-xs text-slate-500">

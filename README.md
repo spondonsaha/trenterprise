@@ -71,14 +71,15 @@ npm run db:seed
 
 For local schema changes use `npm run db:migrate`. `npm run db:studio` opens Prisma Studio.
 
-Seeded demo logins:
+Seed passwords come from environment variables and are never stored in the repo:
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Admin | `admin@trenterprise.com` | `REDACTED` |
-| Staff | `staff@trenterprise.com` | `REDACTED` |
+```bash
+SEED_ADMIN_PASSWORD="a-long-unique-password" \
+SEED_STAFF_PASSWORD="another-long-unique-password" \
+npm run db:seed
+```
 
-Change these passwords after the first production login (Users -> edit).
+The seeded accounts are `admin@trenterprise.com` and `staff@trenterprise.com`. Change both passwords after the first login (Users -> edit). The seed refuses to run in production unless `ALLOW_DESTRUCTIVE_SEED=true`.
 
 ### 5. Run
 
@@ -153,7 +154,7 @@ From a trusted machine with the production variables loaded, run:
 npm run db:deploy
 ```
 
-Seed only for a brand-new demo environment; do not seed over production data. After the first login, change the seeded admin and staff passwords in **Users & Roles**.
+Seed only for a brand-new demo environment; do not seed over production data. Provide fresh `SEED_ADMIN_PASSWORD` and `SEED_STAFF_PASSWORD` values, and change both passwords after the first login in **Users & Roles**.
 
 ### CLI deployment (optional)
 
@@ -215,7 +216,8 @@ src/lib/pdf/            invoice, receipt and report PDF templates
 - Every server action and API route authenticates and authorizes individually; middleware also guards app routes.
 - Passwords are hashed with bcrypt. Sessions use a signed JWT secret.
 - Audit records capture actor, action, entity and changes for key mutations.
-- Environment files are git-ignored. Never commit real database URLs or secrets.
+- Environment files are git-ignored. Never commit real database URLs, passwords, tokens or seed credentials.
+- Never hardcode demo credentials in source, docs or seed scripts; read them from environment variables.
 - For production, use a unique `NEXTAUTH_SECRET`, rotate the seeded passwords, enable Neon backups, and restrict database access.
 
 ## Limitations

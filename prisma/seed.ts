@@ -488,6 +488,24 @@ async function recordSeededPayment(args: {
 }
 
 async function main() {
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  const staffPassword = process.env.SEED_STAFF_PASSWORD;
+
+  if (!adminPassword || !staffPassword) {
+    throw new Error(
+      "Set SEED_ADMIN_PASSWORD and SEED_STAFF_PASSWORD before seeding. Do not use shared or default passwords.",
+    );
+  }
+  if (adminPassword.length < 12 || staffPassword.length < 12) {
+    throw new Error("Seed passwords must be at least 12 characters.");
+  }
+  if (adminPassword === staffPassword) {
+    throw new Error("Use two different seed passwords.");
+  }
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_DESTRUCTIVE_SEED !== "true") {
+    throw new Error("Refusing to wipe a production database. Set ALLOW_DESTRUCTIVE_SEED=true to override.");
+  }
+
   console.log("Seeding TR Enterprise ERP...");
 
   await prisma.auditLog.deleteMany();
@@ -506,8 +524,8 @@ async function main() {
   await prisma.setting.deleteMany();
   await prisma.sequence.deleteMany();
 
-  const passwordHash = await bcrypt.hash("REDACTED", 10);
-  const staffHash = await bcrypt.hash("REDACTED", 10);
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
+  const staffHash = await bcrypt.hash(staffPassword, 10);
 
   const admin = await prisma.user.create({
     data: {
@@ -520,7 +538,7 @@ async function main() {
   });
   const staff = await prisma.user.create({
     data: {
-      name: "REDACTED",
+      name: "Demo Staff",
       email: "staff@trenterprise.com",
       passwordHash: staffHash,
       role: Role.STAFF,
@@ -532,9 +550,9 @@ async function main() {
     data: {
       id: "singleton",
       companyName: COMPANY_NAME,
-      address: "REDACTED",
-      phone: "REDACTED",
-      email: "REDACTED",
+      address: "Demo address, Dhaka, Bangladesh",
+      phone: "+880 0000-000000",
+      email: "sales@example.com",
       currency: DEFAULT_CURRENCY,
       currencySymbol: DEFAULT_CURRENCY_SYMBOL,
       invoicePrefix: DEFAULT_INVOICE_PREFIX,
@@ -908,8 +926,8 @@ async function main() {
   });
 
   console.log(`Seeded ${products.length} products, 5 customers and 3 invoices.`);
-  console.log(`Admin login: admin@trenterprise.com / REDACTED`);
-  console.log(`Staff login: staff@trenterprise.com / REDACTED`);
+  console.log("Admin login: admin@trenterprise.com (password from SEED_ADMIN_PASSWORD)");
+  console.log("Staff login: staff@trenterprise.com (password from SEED_STAFF_PASSWORD)");
   console.log(`Invoices: ${invoice1.invoiceNumber}, ${invoice2.invoiceNumber}, ${invoice3.invoiceNumber}`);
 }
 
